@@ -11,12 +11,13 @@ from account import Account
 class Person(Base):
     """Person base class for a hotel management system"""
     
-    def __init__(self, name, joined=date.today(), end=None):
+    def __init__(self, name, email, joined=date.today(), end=None):
         """
         Sets up a Person instance with name, start date, and end date parameters.
         Parameters start and end should be date objects.
         """
         self._name = name.title() 
+        self._email = email
         self._joined = joined
         self._end = end
 
@@ -24,6 +25,7 @@ class Person(Base):
 
     _id: Mapped[int] = mapped_column(primary_key=True)
     _name: Mapped[str]
+    _email: Mapped[str] = mapped_column(unique=True)
     _joined: Mapped[date]
     _end: Mapped[date] = mapped_column(nullable=True)
     _type: Mapped[str]
@@ -145,24 +147,16 @@ class Employee(Person):
 class Manager(Employee):
     """Manager subclass for a hotel management system"""
 
-    def __init__(self, office, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         """Sets up a Manager instance with an office parameter"""
-        self._office = office
         self._employees = []
         super().__init__(*args, **kwargs)
 
-    _office: Mapped[str] = mapped_column(nullable=True)
     _employees: Mapped[list[Employee]] = relationship()
 
     __mapper_args__ = {
         "polymorphic_identity": "manager",
     }
-
-    def get_office(self):
-        return self._office
-    
-    def set_office(self, office):
-        self._office = office 
 
     def get_employees(self):
         return self._employees[:]
@@ -182,7 +176,7 @@ def test_guest():
     from stay import Stay
 
     stay = Stay('room 101', date.today(), date.today())
-    guest = Guest(stay, 'Joe', date(2023, 5, 20))
+    guest = Guest(stay, 'Joe', date(2023, 5, 20), 'test@email.com')
     print(guest.is_checked_in(), guest.get_joined())     # False, 2023-05-20
 
     guest.get_stay().check_in()
@@ -192,7 +186,7 @@ def test_guest():
     print(guest.is_checked_in())        # False
 
 def test_employee():
-    emp = Employee(20, 'Jeff')
+    emp = Employee(20, 'Jeff', 'test2@email.com')
     emp.add_hours(40)
     print(emp.get_total_pay())          # 800.0
 
@@ -205,11 +199,11 @@ def test_employee():
     print(emp.is_current())             # True
 
 def test_manager():
-    man = Manager('B10', 30, 'Jenny')
+    man = Manager(30, 'Jenny', 'test3@email.com')
     print(man.get_employees())          # []
 
-    emp_a = Employee(20, 'Julian')
-    emp_b = Employee(20, 'Jennifer')
+    emp_a = Employee(20, 'Julian', 'test4@email.com')
+    emp_b = Employee(20, 'Jennifer', 'test5@email.com')
     man.add_employee(emp_a)
     man.add_employee(emp_b)
     print(man.get_employees())          # [(Person: Julian), (Person: Jennifer)]

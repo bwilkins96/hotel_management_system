@@ -23,9 +23,9 @@ def main():
     room = Room(152, 'queen', 100)
     stay = Stay(room, date(2023, 8, 1), date(2023, 8, 5))
 
-    guest = Guest(stay, 'Joe')
-    employee = Employee(20, 'Jeff')
-    manager = Manager('B10', 30, 'Jenny')
+    guest = Guest(stay, 'Joe', 'joe@email.com')
+    employee = Employee(20, 'Jeff', 'jeff@email.com')
+    manager = Manager(30, 'Jenny', 'jenny@email.com')
     manager.add_employee(employee)
 
     data = [room, stay, guest, employee, manager]

@@ -33,7 +33,7 @@ class PrototypeFactory:
         """Returns a deep clone of the instance at registry[key]"""
         return self._registry[key].clone()
     
-    def shallow_get(self, key):
+    def get_shallow(self, key):
         """Returns a shallow clone of the instance at registry[key]"""
         return self._registry[key].shallow_clone()
     
