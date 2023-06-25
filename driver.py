@@ -1,7 +1,7 @@
 # SWDV 630 - Object-Oriented Software Architecture
 # Driver/test file that adds and retrieves objects from a SQLite database
 
-from datetime import date
+from datetime import date, datetime, timedelta
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
 
@@ -10,6 +10,7 @@ from room import Room
 from stay import Stay
 from account import Account
 from person import Guest, Employee, Manager
+from schedule import Schedule, Shift
 
 def main():
     # Creates a database in the directory called 'test.db'
@@ -28,8 +29,12 @@ def main():
     manager = Manager(30, 'Jenny', 'jenny@email.com')
     manager.add_employee(employee)
 
+    schedule = employee.get_schedule()
+    now = datetime.now()
+    schedule.add_shift(Shift(now, now + timedelta(hours=8)))
+
     data = [room, stay, guest, employee, manager]
-    classes = [Room, Stay, Guest, Employee, Manager, Account]
+    classes = [Room, Stay, Guest, Employee, Manager, Account, Schedule, Shift]
 
     print()
     with Session(engine) as session:

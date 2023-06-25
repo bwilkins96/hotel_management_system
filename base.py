@@ -4,6 +4,8 @@
 from sqlalchemy.orm import DeclarativeBase
 
 class Base(DeclarativeBase):
-    pass
+    def save(self, session):
+        session.add(self)
+        session.commit()
 
     

@@ -7,6 +7,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from base import Base
 from stay import Stay
 from account import Account
+from schedule import Schedule
 
 class Person(Base):
     """Person base class for a hotel management system"""
@@ -107,6 +108,7 @@ class Employee(Person):
         self._pay_rate = float(pay_rate)
         self._unpaid_hours = 0.0
         self._unpaid_overtime = 0.0
+        self._schedule = Schedule()
 
         super().__init__(*args, **kwargs)
 
@@ -114,10 +116,15 @@ class Employee(Person):
     _unpaid_hours: Mapped[float] = mapped_column(nullable=True)
     _unpaid_overtime: Mapped[float] = mapped_column(nullable=True)
     _manager_id: Mapped[int] = mapped_column(ForeignKey('person._id'), nullable=True)
+    _schedule_id: Mapped[int] = mapped_column(ForeignKey('schedule._id'), nullable=True)
+    _schedule: Mapped[Schedule] = relationship()
 
     __mapper_args__ = {
         "polymorphic_identity": "employee",
     }
+
+    def get_schedule(self):
+        return self._schedule
 
     def get_pay_rate(self):
         return self._pay_rate
@@ -143,6 +150,21 @@ class Employee(Person):
         rate = self.get_pay_rate()
         total = (self._unpaid_hours * rate) + (self._unpaid_overtime * rate * 1.5)
         return total
+    
+    def is_clocked_in(self):
+        return self.get_schedule().is_clocked_in()
+    
+    def apply_schedule_hours(self):
+        schedule = self.get_schedule()
+        hours = schedule.hours_worked()
+        overtime = 0
+
+        if hours > 40:
+            overtime = hours - 40
+            hours = 40.0
+
+        self.add_hours(hours, overtime)
+        schedule.reset()
     
 class Manager(Employee):
     """Manager subclass for a hotel management system"""
