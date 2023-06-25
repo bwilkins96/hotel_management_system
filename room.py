@@ -38,6 +38,9 @@ class Room(Base, Prototype):
     def add_unavailable(self, start, end):
         self._unavailable_dates[start] = end
 
+    def remove_unavailable(self, start):
+        del self._unavailable_dates[start]
+
     def available_on(self, date):
         for start in self._unavailable_dates:
             end = self._unavailable_dates[start]
@@ -54,12 +57,12 @@ class Room(Base, Prototype):
         return f'<Room {self._room_number}: ${self._rate:.2f}>'
     
 def test():
-    from datetime import date
+    from datetime import datetime
 
     room = Room(101, 'king', 175)
-    room.add_unavailable(date(2023, 8, 1), date(2023, 8, 5))
+    room.add_unavailable(datetime(2023, 8, 1), datetime(2023, 8, 5))
     
-    print(room.available_on(date(2023, 8, 3)))    # -> False
-    print(room.available_on(date(2023, 7, 3)))    # -> True
+    print(room.available_on(datetime(2023, 8, 3)))    # -> False
+    print(room.available_on(datetime(2023, 7, 3)))    # -> True
 
 if __name__ == '__main__': test()

@@ -16,6 +16,8 @@ class Stay(Base):
         self._remaining_keycards = keycards
         self._replacement_keycards = 0
 
+        self._setup_room()
+
     __tablename__ = 'stay'
 
     _id: Mapped[int] = mapped_column(primary_key=True)
@@ -43,16 +45,30 @@ class Stay(Base):
         return self._replacement_keycards
     
     def set_room(self, room):
+        self._reset_room()
         self._room = room
+        self._setup_room()
 
     def set_start(self, start):
+        self._reset_room()
         self._start = start
+        self._setup_room()
 
     def set_end(self, end):
+        self._reset_room()
         self._end = end
+        self._setup_room()
 
     def set_remaining_keycards(self, keycards):
         self._remaining_keycards = keycards
+
+    def _setup_room(self):
+        room = self.get_room()
+        room.add_unavailable(self.get_start(), self.get_end())
+
+    def _reset_room(self):
+        room = self.get_room()
+        room.remove_unavailable(self.get_start())
 
     def check_in(self):
         if self.checked_in(): return False
@@ -88,3 +104,16 @@ class Stay(Base):
         start_date = self.get_start().date()
         end_date = self.get_end().date()
         return f'<Stay: Room {room_number}, {start_date} to {end_date}>'
+    
+def test():
+    from datetime import timedelta
+
+    room = Room(101, 'queen', 150)
+    stay = Stay(room, datetime.now(), datetime.now())
+    print(stay.get_room()._unavailable_dates)
+    
+    print()
+    stay.set_end(datetime.now() + timedelta(days=5))
+    print(stay.get_room()._unavailable_dates)
+
+if __name__ == '__main__': test()
