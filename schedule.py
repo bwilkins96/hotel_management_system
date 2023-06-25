@@ -78,7 +78,10 @@ class Shift(Base):
         return calculate_hours(self.get_real_start(), self.get_real_end())
     
     def __repr__(self):
-        return f'<Shift: {str(self.get_start())} to {str(self.get_end())}>'
+        shift_date = self.get_start().date()
+        start_time = self.get_start().strftime('%H:%M:%S')
+        end_time = self.get_end().strftime('%H:%M:%S')
+        return f'<Shift: {shift_date} ({start_time} to {end_time})>'
     
 class Schedule(Base):
     _week_days = ('m', 't', 'w', 'th', 'f', 's', 'su')
