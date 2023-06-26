@@ -71,14 +71,16 @@ class Stay(Base):
         room.remove_unavailable(self.get_start())
 
     def check_in(self):
-        if self.checked_in(): return False
+        if self.is_checked_in(): return False
         
         self._checked_in = True
+        self._reset_room()
         self._start = datetime.now()
+        self._setup_room()
         return True
 
     def check_out(self):
-        if not self.checked_in(): return False
+        if not self.is_checked_in(): return False
         
         self._checked_in = False
         self._end = datetime.now()
@@ -110,10 +112,16 @@ def test():
 
     room = Room(101, 'queen', 150)
     stay = Stay(room, datetime.now(), datetime.now())
-    print(stay.get_room()._unavailable_dates)
-    
-    print()
-    stay.set_end(datetime.now() + timedelta(days=5))
-    print(stay.get_room()._unavailable_dates)
+    future = datetime.now() + timedelta(days=4)
+    future_2 = datetime.now() + timedelta(days=5)
+
+    print(stay.get_room().available_on(future))    # -> True
+    stay.set_end(future_2)
+    print(stay.get_room().available_on(future))    # -> False
+
+    stay.check_in()
+    print(f'\n{stay.is_checked_in()}')             # -> True
+    stay.check_out()
+    print(stay.is_checked_in())                    # -> False
 
 if __name__ == '__main__': test()
