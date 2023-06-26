@@ -8,4 +8,9 @@ class Base(DeclarativeBase):
         session.add(self)
         session.commit()
 
+    @staticmethod
+    def save_all(lst, session):
+        for obj in lst:
+            session.add(obj)
+        session.commit()
     

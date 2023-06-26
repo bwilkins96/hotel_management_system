@@ -45,36 +45,39 @@ class Stay(Base):
         return self._replacement_keycards
     
     def set_room(self, room):
-        self._reset_room()
+        self.reset_room()
         self._room = room
         self._setup_room()
 
     def set_start(self, start):
-        self._reset_room()
+        self.reset_room()
         self._start = start
         self._setup_room()
 
     def set_end(self, end):
-        self._reset_room()
+        self.reset_room()
         self._end = end
         self._setup_room()
 
     def set_remaining_keycards(self, keycards):
         self._remaining_keycards = keycards
 
+    def reset_room(self):
+        room = self.get_room()
+        room.remove_unavailable(self.get_start())
+
     def _setup_room(self):
         room = self.get_room()
         room.add_unavailable(self.get_start(), self.get_end())
 
-    def _reset_room(self):
-        room = self.get_room()
-        room.remove_unavailable(self.get_start())
+    def num_nights(self):
+        return (self.get_end() - self.get_start()).days
 
     def check_in(self):
         if self.is_checked_in(): return False
         
         self._checked_in = True
-        self._reset_room()
+        self.reset_room()
         self._start = datetime.now()
         self._setup_room()
         return True

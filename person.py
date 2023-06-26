@@ -96,9 +96,17 @@ class Guest(Person):
         return self._account
     
     def is_checked_in(self):
-        if self._stay:
-            return self._stay.is_checked_in()
+        stay = self.get_stay()
+        if stay:
+            return stay.is_checked_in()
+       
         return False
+    
+    def cancel_stay(self):
+        stay = self.get_stay()
+        if stay:
+            stay.reset_room()
+            self._stay = None
 
 class Employee(Person):
     """Employee subclass for a hotel management system"""
@@ -196,9 +204,11 @@ class Manager(Employee):
 # Test functions
 def test_guest():
     from stay import Stay
+    from room import Room
 
-    stay = Stay('room 101', date.today(), date.today())
-    guest = Guest(stay, 'Joe', date(2023, 5, 20), 'test@email.com')
+    room = Room(101, 'queen', 150)
+    stay = Stay(room, date.today(), date.today())
+    guest = Guest(stay, 'Joe', 'test@email.com', date(2023, 5, 20))
     print(guest.is_checked_in(), guest.get_joined())     # False, 2023-05-20
 
     guest.get_stay().check_in()
