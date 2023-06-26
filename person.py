@@ -71,9 +71,9 @@ class Person(Base):
 class Guest(Person):
     """Guest subclass for a hotel management system"""
 
-    def __init__(self, stay, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         """Sets up a Guest instance with a stay parameter"""
-        self._stay = stay
+        self._stay = None
         self._account = Account()
         super().__init__(*args, **kwargs)
 
@@ -89,24 +89,31 @@ class Guest(Person):
     def get_stay(self):
         return self._stay
     
-    def set_stay(self, stay):
-        self._stay = stay
-
     def get_account(self):
         return self._account
     
+    def book_stay(self, stay):
+        if self.get_stay(): self.cancel_stay()
+
+        self._stay = stay
+        account = self.get_account()
+        account.charge(stay.get_total_charge())
+
+    def cancel_stay(self):
+        stay = self.get_stay()
+        if stay:
+            account = self.get_account()
+            account.credit(stay.get_total_charge())
+            
+            stay.reset_room()
+            self._stay = None
+
     def is_checked_in(self):
         stay = self.get_stay()
         if stay:
             return stay.is_checked_in()
        
         return False
-    
-    def cancel_stay(self):
-        stay = self.get_stay()
-        if stay:
-            stay.reset_room()
-            self._stay = None
 
 class Employee(Person):
     """Employee subclass for a hotel management system"""
@@ -208,7 +215,8 @@ def test_guest():
 
     room = Room(101, 'queen', 150)
     stay = Stay(room, date.today(), date.today())
-    guest = Guest(stay, 'Joe', 'test@email.com', date(2023, 5, 20))
+    guest = Guest('Joe', 'test@email.com', date(2023, 5, 20))
+    guest.book_stay(stay)
     print(guest.is_checked_in(), guest.get_joined())     # False, 2023-05-20
 
     guest.get_stay().check_in()

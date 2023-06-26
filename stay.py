@@ -94,15 +94,19 @@ class Stay(Base):
     
     def get_keycard(self, printer):
         if self.get_remaining_keycards() > 0:
-            printer.print_keycard()
+            printer.print_keycard(self.get_room())
             self._remaining_keycards -= 1
             return True
         
         return False
     
     def replace_keycard(self, printer):
-        printer.print_keycard()
+        printer.print_keycard(self.get_room())
         self._replacement_keycards += 1
+
+    def get_total_charge(self):
+        room = self.get_room()
+        return room.calculate_total(self.num_nights())
     
     def __repr__(self):
         room_number = self.get_room().get_room_number()

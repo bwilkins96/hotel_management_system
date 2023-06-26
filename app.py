@@ -1,8 +1,6 @@
 # SWDV 630 - Object-Oriented Software Architecture
 
 from datetime import datetime, timedelta
-from sqlalchemy import create_engine, select
-from sqlalchemy.orm import Session
 from base import Base
 
 from factory import PersonFactory
@@ -12,26 +10,7 @@ from stay import Stay
 from schedule import Shift, Schedule
 from printer import Printer
 
-def get_session(echo=False):
-    #engine = create_engine("sqlite+pysqlite:///test.db", echo=echo)
-    engine = create_engine("sqlite+pysqlite:///:memory:", echo=echo)
-    Base.metadata.create_all(engine)
-    return Session(engine)
-
-def future_date(days):
-    return datetime.now() + timedelta(days=days)
-
-def book_stay(guest, stay, session=None):
-    guest.set_stay(stay)
-    account = guest.get_account()
-    room = stay.get_room()
-    
-    total_charge = room.calculate_total(stay.num_nights())
-    account.charge(total_charge)
-
-    if session:
-        guest.save(session)
-        stay.save(session)
+from utils import get_session, future_date
 
 def main():
     session = get_session()
@@ -49,15 +28,33 @@ def main():
     printer = Printer(100)
 
     # Check availability / room rate
-    print(room_1.available_on(future_date(2)))
-    print(room_1.get_rate())
+    print(room_1.available_on(future_date(2)))  # -> True
+    print(room_1.get_rate())  # -> 100
 
     # Create guest and book stay
-    guest_a = PersonFactory.create('guest', None, 'Mike', 'guest_a@email.com')
+    guest_a = PersonFactory.create('guest', 'Mike', 'guest_a@email.com')
     stay_a = Stay(room_1, future_date(2), future_date(7))
-    book_stay(guest_a, stay_a)
-    print(f'\n{guest_a.get_stay()}')
-    print(guest_a.get_account().get_total_due())
+    guest_a.book_stay(stay_a)
+    print(f'\n{guest_a.get_stay()}\n')
+
+    # Check pay and pay bill
+    ga_account = guest_a.get_account()
+    print(ga_account.get_total_due())  # -> 500
+    ga_account.pay(ga_account.get_total_due())
+    print(f'{ga_account.get_total_due()}\n')  # -> 0
+
+    # Check-in, check-out, get/replace room key
+    stay_a.check_in()
+    print(guest_a.is_checked_in())     # True
+    stay_a.get_keycard(printer)        # Should print mock message
+    stay_a.get_keycard(printer)        # Should print mock message
+
+    print()
+    stay_a.get_keycard(printer)         # Should NOT print mock message
+    stay_a.replace_keycard(printer)     # Should print mock message
+    stay_a.check_out()
+    print(guest_a.is_checked_in())      # False
+
 
 
     session.close()
