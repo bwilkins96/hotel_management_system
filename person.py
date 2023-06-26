@@ -93,8 +93,6 @@ class Guest(Person):
         return self._account
     
     def book_stay(self, stay):
-        if self.get_stay(): self.cancel_stay()
-
         self._stay = stay
         account = self.get_account()
         account.charge(stay.get_total_charge())

@@ -28,34 +28,34 @@ def main():
     printer = Printer(100)
 
     # Check availability / room rate
-    print(room_1.available_on(future_date(2)))  # -> True
-    print(room_1.get_rate())  # -> 100
+    print(room_1.available_on(future_date(2)))   # -> True
+    print(room_1.get_rate())                     # -> 100
 
     # Create guest and book stay
     guest_a = PersonFactory.create('guest', 'Mike', 'guest_a@email.com')
     stay_a = Stay(room_1, future_date(2), future_date(7))
     guest_a.book_stay(stay_a)
-    print(f'\n{guest_a.get_stay()}\n')
+    print(f'\n{guest_a.get_stay()}\n')    # -> Stay object
 
     # Check pay and pay bill
     ga_account = guest_a.get_account()
-    print(ga_account.get_total_due())  # -> 500
+    print(ga_account.get_total_due())            # -> 500
     ga_account.pay(ga_account.get_total_due())
-    print(f'{ga_account.get_total_due()}\n')  # -> 0
+    print(f'{ga_account.get_total_due()}\n')     # -> 0
 
     # Check-in, check-out, get/replace room key
     stay_a.check_in()
-    print(guest_a.is_checked_in())     # True
-    stay_a.get_keycard(printer)        # Should print mock message
-    stay_a.get_keycard(printer)        # Should print mock message
+    print(guest_a.is_checked_in())       # True
+    stay_a.get_keycard(printer)          # Should print mock message
+    stay_a.get_keycard(printer)          # Should print mock message
 
     print()
-    stay_a.get_keycard(printer)         # Should NOT print mock message
-    stay_a.replace_keycard(printer)     # Should print mock message
+    stay_a.get_keycard(printer)          # Should NOT print mock message
+    stay_a.replace_keycard(printer)      # Should print mock message
     stay_a.check_out()
-    print(guest_a.is_checked_in())      # False
+    print(f'{guest_a.is_checked_in()}')  # -> False
 
-
+    
 
     session.close()
 

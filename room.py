@@ -41,11 +41,14 @@ class Room(Base, Prototype):
     def remove_unavailable(self, start):
         del self._unavailable_dates[start]
 
-    def available_on(self, date):
+    def available_on(self, start_date, end_date=None):
         for start in self._unavailable_dates:
             end = self._unavailable_dates[start]
 
-            if date >= start and date < end:
+            if start_date >= start and start_date < end:
+                return False
+            
+            if end_date and (end_date >= start and end_date < end):
                 return False
             
         return True
@@ -64,5 +67,7 @@ def test():
     
     print(room.available_on(datetime(2023, 8, 3)))    # -> False
     print(room.available_on(datetime(2023, 7, 3)))    # -> True
+    print(room.available_on(datetime(2023, 8, 4), datetime(2023, 8, 8)))    # -> False
+    print(room.available_on(datetime(2023, 8, 5), datetime(2023, 8, 8)))    # -> True
 
 if __name__ == '__main__': test()
