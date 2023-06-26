@@ -102,9 +102,22 @@ class Guest(Person):
         if stay:
             account = self.get_account()
             account.credit(stay.get_total_charge())
+            account.apply_credits()
             
             stay.reset_room()
             self._stay = None
+
+    def alter_stay(self, start=None, end=None):
+        stay = self.get_stay()
+        if stay:
+            account = self.get_account()
+            account.credit(stay.get_total_charge())
+
+            if start: stay.set_start(start)
+            if end: stay.set_end(end)
+
+            account.charge(stay.get_total_charge())
+            account.apply_credits()
 
     def is_checked_in(self):
         stay = self.get_stay()
