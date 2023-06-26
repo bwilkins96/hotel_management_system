@@ -11,5 +11,5 @@ def get_session(echo=False):
     Base.metadata.create_all(engine)
     return Session(engine)
 
-def future_date(days):
-    return datetime.now() + timedelta(days=days)
+def future_date(days=0, hours=0):
+    return datetime.now() + timedelta(days=days, hours=hours)

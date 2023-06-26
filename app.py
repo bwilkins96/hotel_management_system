@@ -72,9 +72,23 @@ def main():
     print(stay_c)
     guest_b.alter_stay(end=future_date(12))
     print(stay_c)
-    print(f'{gb_account}\n')     # -> Balance due of $200
+    print(f'{gb_account}\n')      # -> Balance due of $200
 
-    
+    # Check employee pay
+    emp_a.add_hours(40, 5)
+    print(f'{emp_a.get_total_pay()}\n')  # -> 950
+
+    # Set / check work schedule
+    ea_schedule = emp_a.get_schedule()
+    shift_a = Shift(datetime.now(), future_date(hours=8))
+    ea_schedule.add_shift(shift_a)
+    print(f'{ea_schedule.get_shifts()}\n')
+
+    # clock-in / clock-out of shift
+    ea_schedule.get_current_shift().clock_in()
+    print(emp_a.is_clocked_in())
+    ea_schedule.get_current_shift().clock_out()
+    print(f'{emp_a.is_clocked_in()}\n')
 
     #session.close()
 

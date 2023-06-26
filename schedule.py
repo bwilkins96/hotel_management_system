@@ -1,6 +1,6 @@
 # SWDV 630 - Object-Oriented Software Architecture
 
-from datetime import datetime
+from datetime import datetime, date
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from base import Base
@@ -103,6 +103,11 @@ class Schedule(Base):
 
     def get_shifts(self):
         return self._shifts[:]
+    
+    def get_current_shift(self):
+        for shift in self._shifts:
+            if shift.get_start().date() == date.today():
+                return shift
     
     def add_shift(self, shift):
         if type(shift) == Shift:
