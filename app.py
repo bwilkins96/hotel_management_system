@@ -13,7 +13,7 @@ from printer import Printer
 from utils import get_session, future_date
 
 def main():
-    session = get_session()
+    #session = get_session()
 
     room_1 = Room(1, 'queen', 100)
     room_2 = Room(2, 'king', 125)
@@ -33,19 +33,19 @@ def main():
 
     # Create guest and book stay
     guest_a = PersonFactory.create('guest', 'Mike', 'guest_a@email.com')
-    stay_a = Stay(room_1, future_date(2), future_date(7))
+    stay_a = Stay(room_1, datetime.now(), future_date(5))
     guest_a.book_stay(stay_a)
-    print(f'\n{guest_a.get_stay()}\n')    # -> Stay object
+    print(f'\n{guest_a.get_stay()}\n')  
 
     # Check pay and pay bill
     ga_account = guest_a.get_account()
-    print(ga_account.get_total_due())            # -> 500
+    print(ga_account)           
     ga_account.pay(ga_account.get_total_due())
-    print(f'{ga_account.get_total_due()}\n')     # -> 0
+    print(f'{ga_account}\n')    
 
     # Check-in, check-out, get/replace room key
     stay_a.check_in()
-    print(guest_a.is_checked_in())       # True
+    print(guest_a.is_checked_in())       # -> True
     stay_a.get_keycard(printer)          # Should print mock message
     stay_a.get_keycard(printer)          # Should print mock message
 
@@ -53,10 +53,23 @@ def main():
     stay_a.get_keycard(printer)          # Should NOT print mock message
     stay_a.replace_keycard(printer)      # Should print mock message
     stay_a.check_out()
-    print(f'{guest_a.is_checked_in()}')  # -> False
+    print(f'{guest_a.is_checked_in()}\n')  # -> False
 
+    # Cancel stay
+    guest_b = PersonFactory.create('guest', 'Marcy', 'guest_b@email.com')
+    guest_b.book_stay(Stay(room_2, future_date(2), future_date(7)))
+
+    gb_account = guest_b.get_account()
+    print(gb_account)
+    guest_b.cancel_stay()
     
+    print(guest_b.get_stay())    # -> None
+    print(gb_account)            # -> Equal balance and credits
+    gb_account.apply_credits()
+    print(gb_account)            # -> Zero balance and credits
 
-    session.close()
+    # Alter stay
+
+    #session.close()
 
 if __name__ == '__main__': main()

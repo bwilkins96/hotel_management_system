@@ -31,6 +31,17 @@ class Account(Base):
         self._total_due -= (payment + credits)
         self._credits -= credits
 
+    def apply_credits(self):
+        credits = self.get_credits()
+        self._total_due -= credits
+
+        total = self.get_total_due()
+        if total < 0:
+            self._credits = abs(total)
+            self._total = 0
+        else:
+            self._credits = 0
+
     def payment_due(self):
         return self.get_total_due() > 0
     
