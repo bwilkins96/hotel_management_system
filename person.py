@@ -81,19 +81,19 @@ class Guest(Person):
     def get_account(self):
         return self._account
     
-    def get_stay(self, room_number):
+    def get_stay(self, room_number, start):
         for stay in self.get_stays():
             if stay.get_room().get_room_number() == room_number:
-                return stay
+                if stay.get_start().date() == start: 
+                    return stay
     
     def book_stay(self, stay):
         self._stays.append(stay)
         account = self.get_account()
         account.charge(stay.get_total_charge())
 
-    def cancel_stay(self, room_number):
-        stay = self.get_stay(room_number)
-        if stay:
+    def cancel_stay(self, stay):
+        if stay in self.get_stays():
             account = self.get_account()
             account.credit(stay.get_total_charge())
             account.apply_credits()
@@ -102,9 +102,8 @@ class Guest(Person):
             stay_idx = self._stays.index(stay)
             self._stays.pop(stay_idx)
 
-    def alter_stay(self, room_number, start=None, end=None):
-        stay = self.get_stay(room_number)
-        if stay:
+    def alter_stay(self, stay, start=None, end=None):
+        if stay in self.get_stays():
             account = self.get_account()
             account.credit(stay.get_total_charge())
 
@@ -114,9 +113,8 @@ class Guest(Person):
             account.charge(stay.get_total_charge())
             account.apply_credits()
 
-    def is_checked_in(self, room_number):
-        stay = self.get_stay(room_number)
-        if stay:
+    def is_checked_in(self, stay):
+        if stay in self.get_stays():
             return stay.is_checked_in()
        
         return False
@@ -216,6 +214,7 @@ class Manager(Employee):
 
 # Test functions
 def test_guest():
+    from datetime import date
     from stay import Stay
     from room import Room
     from utils import future_date
@@ -224,13 +223,13 @@ def test_guest():
     stay = Stay(room, datetime.now(), datetime.now())
     guest = Guest(Account(), 'Joe', 'test@email.com', datetime(2023, 5, 20))
     guest.book_stay(stay)
-    print(guest.is_checked_in(101), guest.get_joined())     # False, 2023-05-20
+    print(guest.is_checked_in(stay), guest.get_joined())     # False, 2023-05-20
 
-    guest.get_stay(101).check_in()
-    print(guest.is_checked_in(101))        # True
+    guest.get_stay(101, date.today()).check_in()
+    print(guest.is_checked_in(stay))        # True
 
-    guest.get_stay(101).check_out()
-    print(guest.is_checked_in(101))        # False
+    guest.get_stay(101, date.today()).check_out()
+    print(guest.is_checked_in(stay))        # False
 
     stay_2 = Stay(room, future_date(5), future_date(10))
     guest.book_stay(stay_2)
