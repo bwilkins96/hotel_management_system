@@ -14,3 +14,8 @@ def get_session(echo=False):
 
 def future_date(days=0, hours=0):
     return datetime.now() + timedelta(days=days, hours=hours)
+
+def calculate_hours(time1, time2):
+    diff = time2 - time1
+    hours = diff.seconds / 60 / 60
+    return hours

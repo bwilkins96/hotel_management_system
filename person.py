@@ -1,7 +1,7 @@
 # SWDV 630 - Object-Oriented Software Architecture
 # Person superclass and 3 subclasses for a hotel management system
 
-from datetime import date
+from datetime import datetime
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from base import Base
@@ -12,7 +12,7 @@ from schedule import Schedule
 class Person(Base):
     """Person base class for a hotel management system"""
     
-    def __init__(self, name, email, joined=date.today(), end=None):
+    def __init__(self, name, email, joined=datetime.now()):
         """
         Sets up a Person instance with name, start date, and end date parameters.
         Parameters start and end should be date objects.
@@ -20,15 +20,13 @@ class Person(Base):
         self._name = name.title() 
         self._email = email
         self._joined = joined
-        self._end = end
 
     __tablename__ = 'person'
 
     _id: Mapped[int] = mapped_column(primary_key=True)
     _name: Mapped[str]
     _email: Mapped[str] = mapped_column(unique=True)
-    _joined: Mapped[date]
-    _end: Mapped[date] = mapped_column(nullable=True)
+    _joined: Mapped[datetime]
     _type: Mapped[str]
 
     # Used to set up a table that keeps track of all instances of the base and subclasses 
@@ -39,34 +37,26 @@ class Person(Base):
 
     def get_name(self):
         return self._name
+    
+    def get_email(self):
+        return self._email
+    
+    def get_joined(self):
+        return self._joined
 
     def set_name(self, name):
         self._name = name.title() 
-        
-    def get_joined(self):
-        return self._joined
-    
-    def set_joined(self, joined):
-        self._joined = joined
 
-    def get_end(self):
-        return self._end
-    
-    def set_end(self, end): 
-        self._end = end
+    def set_email(self, email):
+        self._email = email
 
-    def get_type(self):
-        return self._type
-
-    def is_current(self):
-        """Returns whether the Person instance is currently active"""
-        if self.get_end() == None:
-            return True
-        
-        return date.today() <= self.get_end()
+    def days_since_join(self):
+        joined = self.get_joined()
+        diff = datetime.now() - joined
+        return joined.days
 
     def __repr__(self):
-        return f'<Person: {self.get_name()}, {self.get_type().title()}>'
+        return f'<Person: {self.get_name()}, {self._type.title()}>'
 
 class Guest(Person):
     """Guest subclass for a hotel management system"""
@@ -225,8 +215,8 @@ def test_guest():
     from room import Room
 
     room = Room(101, 'queen', 150)
-    stay = Stay(room, date.today(), date.today())
-    guest = Guest(Account(), 'Joe', 'test@email.com', date(2023, 5, 20))
+    stay = Stay(room, datetime.now(), datetime.now())
+    guest = Guest(Account(), 'Joe', 'test@email.com', datetime(2023, 5, 20))
     guest.book_stay(stay)
     print(guest.is_checked_in(), guest.get_joined())     # False, 2023-05-20
 
@@ -246,8 +236,6 @@ def test_employee():
 
     emp.reset_hours()
     print(emp.get_total_pay())          # 0.0
-
-    print(emp.is_current())             # True
 
 def test_manager():
     man = Manager(Schedule(), 30, 'Jenny', 'test3@email.com')

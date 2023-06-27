@@ -4,11 +4,7 @@ from datetime import datetime, date
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from base import Base
-
-def calculate_hours(time1, time2):
-    diff = time2 - time1
-    hours = diff.seconds / 60 / 60
-    return hours
+from utils import calculate_hours
 
 class Shift(Base):
     def __init__(self, start, end):
