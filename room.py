@@ -57,6 +57,11 @@ class Room(Base, Prototype):
     def calculate_total(self, num_days):
         return self._rate * num_days
     
+    @classmethod
+    def get_all_available(cls, session, start_date, end_date=None):
+        rooms = cls.get_all(session)
+        return [room for room in rooms if room.available_on(start_date, end_date)]
+    
     def __repr__(self):
         return f'<Room {self._room_number}: ${self._rate:.2f}>'
     

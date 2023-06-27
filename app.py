@@ -46,8 +46,10 @@ def main():
     # ---------------------- #
 
     # Check availability / room rate
-    print(room_1.available_on(future_date(2)))   # -> True
-    print(room_1.get_rate())                     # -> 100
+    available_rooms = Room.get_all_available(session, datetime.now(), future_date(5))
+    print(room_1.available_on(future_date(2)))    # -> True
+    print(available_rooms)                        # -> List of all rooms
+    print(room_1.get_rate())                      # -> 100
 
     # Book stay
     stay_a = Stay(room_1, datetime.now(), future_date(5))
