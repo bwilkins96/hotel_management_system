@@ -24,10 +24,10 @@ def main():
     room = Room(152, 'queen', 100)
     stay = Stay(room, datetime(2023, 8, 1), datetime(2023, 8, 5))
 
-    guest = Guest('Joe', 'joe@email.com')
+    guest = Guest(Account(), 'Joe', 'joe@email.com')
     guest.book_stay(stay)
-    employee = Employee(20, 'Jeff', 'jeff@email.com')
-    manager = Manager(30, 'Jenny', 'jenny@email.com')
+    employee = Employee(Schedule(), 20, 'Jeff', 'jeff@email.com')
+    manager = Manager(Schedule(), 30, 'Jenny', 'jenny@email.com')
     manager.add_employee(employee)
 
     schedule = employee.get_schedule()

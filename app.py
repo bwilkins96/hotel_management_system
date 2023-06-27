@@ -1,4 +1,5 @@
 # SWDV 630 - Object-Oriented Software Architecture
+# Application file showing main functionality of hotel management system
 
 from datetime import datetime
 from base import Base
@@ -7,6 +8,7 @@ from factory import PersonFactory
 from room import Room, RoomFactory
 from stay import Stay
 from schedule import Shift, Schedule
+from account import Account
 from printer import Printer
 
 from utils import get_session, future_date
@@ -18,14 +20,14 @@ def main():
     room_2 = Room(2, 'king', 125)
     room_3 = Room(3, '2 queens', 150)
 
-    manager = PersonFactory.create('manager', 30, 'Jenny', 'manager@email.com')
-    emp_a = PersonFactory.create('employee', 20, 'Julian', 'emp_a@email.com')
-    emp_b = PersonFactory.create('employee', 20, 'Jennifer', 'emp_b@email.com')
+    manager = PersonFactory.create('manager', Schedule(), 30, 'Jenny', 'manager@email.com')
+    emp_a = PersonFactory.create('employee', Schedule(), 20, 'Julian', 'emp_a@email.com')
+    emp_b = PersonFactory.create('employee', Schedule(), 20, 'Jennifer', 'emp_b@email.com')
     manager.add_employee(emp_a)
     manager.add_employee(emp_b)
 
-    guest_a = PersonFactory.create('guest', 'Mike', 'guest_a@email.com')
-    guest_b = PersonFactory.create('guest', 'Marcy', 'guest_b@email.com')
+    guest_a = PersonFactory.create('guest', Account(), 'Mike', 'guest_a@email.com')
+    guest_b = PersonFactory.create('guest', Account(), 'Marcy', 'guest_b@email.com')
     ga_account = guest_a.get_account()
     gb_account = guest_b.get_account()
 

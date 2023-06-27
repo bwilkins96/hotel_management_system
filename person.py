@@ -71,10 +71,10 @@ class Person(Base):
 class Guest(Person):
     """Guest subclass for a hotel management system"""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, account, *args, **kwargs):
         """Sets up a Guest instance with a stay parameter"""
         self._stay = None
-        self._account = Account()
+        self._account = account
         super().__init__(*args, **kwargs)
 
     _stay_id: Mapped[int] = mapped_column(ForeignKey('stay._id'), nullable=True)
@@ -129,12 +129,12 @@ class Guest(Person):
 class Employee(Person):
     """Employee subclass for a hotel management system"""
 
-    def __init__(self, pay_rate,  *args, **kwargs):
+    def __init__(self, schedule, pay_rate,  *args, **kwargs):
         """Sets up an Employee instance with a pay_rate parameter"""
         self._pay_rate = float(pay_rate)
         self._unpaid_hours = 0.0
         self._unpaid_overtime = 0.0
-        self._schedule = Schedule()
+        self._schedule = schedule
 
         super().__init__(*args, **kwargs)
 
@@ -226,7 +226,7 @@ def test_guest():
 
     room = Room(101, 'queen', 150)
     stay = Stay(room, date.today(), date.today())
-    guest = Guest('Joe', 'test@email.com', date(2023, 5, 20))
+    guest = Guest(Account(), 'Joe', 'test@email.com', date(2023, 5, 20))
     guest.book_stay(stay)
     print(guest.is_checked_in(), guest.get_joined())     # False, 2023-05-20
 
@@ -237,7 +237,7 @@ def test_guest():
     print(guest.is_checked_in())        # False
 
 def test_employee():
-    emp = Employee(20, 'Jeff', 'test2@email.com')
+    emp = Employee(Schedule(), 20, 'Jeff', 'test2@email.com')
     emp.add_hours(40)
     print(emp.get_total_pay())          # 800.0
 
@@ -250,11 +250,11 @@ def test_employee():
     print(emp.is_current())             # True
 
 def test_manager():
-    man = Manager(30, 'Jenny', 'test3@email.com')
+    man = Manager(Schedule(), 30, 'Jenny', 'test3@email.com')
     print(man.get_employees())          # []
 
-    emp_a = Employee(20, 'Julian', 'test4@email.com')
-    emp_b = Employee(20, 'Jennifer', 'test5@email.com')
+    emp_a = Employee(Schedule(), 20, 'Julian', 'test4@email.com')
+    emp_b = Employee(Schedule(), 20, 'Jennifer', 'test5@email.com')
     man.add_employee(emp_a)
     man.add_employee(emp_b)
     print(man.get_employees())          # [(Person: Julian), (Person: Jennifer)]

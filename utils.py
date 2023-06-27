@@ -1,4 +1,5 @@
 # SWDV 630 - Object-Oriented Software Architecture
+# Utility functions
 
 from datetime import datetime, timedelta
 from sqlalchemy import create_engine, select
