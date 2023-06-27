@@ -62,6 +62,14 @@ class Room(Base, Prototype):
         rooms = cls.get_all(session)
         return [room for room in rooms if room.available_on(start_date, end_date)]
     
+    @classmethod
+    def set_type_rate(cls, type, new_rate, session):
+        rooms = cls.get_all(session)
+        
+        for room in rooms:
+            if room.get_type() == type:
+                room.set_rate(new_rate)
+    
     def __repr__(self):
         return f'<Room {self._room_number}: ${self._rate:.2f}>'
     

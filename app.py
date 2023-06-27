@@ -115,11 +115,7 @@ def main():
         data.append(new_room)
 
     Base.save_all(data, session)
-    rooms = Room.get_all(session)
-    
-    for room in rooms:
-        if room.get_type() == 'queen':
-            room.set_rate(90)
+    Room.set_type_rate('queen', 90, session)
 
     print(room_1.get_rate())    # -> 90
     room_factory.register('queen', room_1)
