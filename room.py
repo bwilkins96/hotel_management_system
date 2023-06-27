@@ -3,8 +3,9 @@
 
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.types import PickleType
+from sqlalchemy.orm.session import make_transient
 from base import Base
-from prototype import Prototype
+from prototype import Prototype, PrototypeFactory
 
 class Room(Base, Prototype):
     def __init__(self, room_num, type, rate):
@@ -58,6 +59,15 @@ class Room(Base, Prototype):
     
     def __repr__(self):
         return f'<Room {self._room_number}: ${self._rate:.2f}>'
+    
+class RoomFactory(PrototypeFactory):
+    def register(self, key, room):
+        if type(room) == Room:
+            room_clone = room.clone()
+            make_transient(room_clone)
+            return super().register(key, room_clone)
+        
+        return False
     
 def test():
     from datetime import datetime

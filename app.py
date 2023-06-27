@@ -1,11 +1,10 @@
 # SWDV 630 - Object-Oriented Software Architecture
 
-from datetime import datetime, timedelta
+from datetime import datetime
 from base import Base
 
 from factory import PersonFactory
-from prototype import PrototypeFactory
-from room import Room
+from room import Room, RoomFactory
 from stay import Stay
 from schedule import Shift, Schedule
 from printer import Printer
@@ -13,7 +12,7 @@ from printer import Printer
 from utils import get_session, future_date
 
 def main():
-    #session = get_session()
+    session = get_session()
 
     room_1 = Room(1, 'queen', 100)
     room_2 = Room(2, 'king', 125)
@@ -30,7 +29,19 @@ def main():
     ga_account = guest_a.get_account()
     gb_account = guest_b.get_account()
 
+    # Save data to database
+    data = [room_1, room_2, room_3, manager, emp_a, emp_b, guest_a, guest_b]
+    Base.save_all(data, session)
+
     printer = Printer(100)
+
+    room_factory = RoomFactory()
+    for room in [room_1, room_2, room_3]:
+        room_factory.register(room.get_type(), room)
+
+    # ---------------------- #
+    # Use case functionality #
+    # ---------------------- #
 
     # Check availability / room rate
     print(room_1.available_on(future_date(2)))   # -> True
@@ -61,18 +72,18 @@ def main():
     stay_b = Stay(room_2, future_date(2), future_date(7))
     guest_b.book_stay(stay_b)
 
-    print(gb_account)
+    print(gb_account)            # -> Balance due of $625
     guest_b.cancel_stay()
     print(guest_b.get_stay())    # -> None
     print(f'{gb_account}\n')     # -> Zero balance and credits
 
     # Alter stay
     stay_c = Stay(room_3, future_date(10), future_date(14))
-    guest_b.book_stay(stay_c)
-    print(stay_c)
+    guest_b.book_stay(stay_c)   
+    print(stay_c)                         
     guest_b.alter_stay(end=future_date(12))
     print(stay_c)
-    print(f'{gb_account}\n')      # -> Balance due of $200
+    print(f'{gb_account}\n')      # -> Balance due of $300
 
     # Check employee pay
     emp_a.add_hours(40, 5)
@@ -86,10 +97,30 @@ def main():
 
     # clock-in / clock-out of shift
     ea_schedule.get_current_shift().clock_in()
-    print(emp_a.is_clocked_in())
+    print(emp_a.is_clocked_in())                   # -> True
     ea_schedule.get_current_shift().clock_out()
-    print(f'{emp_a.is_clocked_in()}\n')
+    print(f'{emp_a.is_clocked_in()}\n')            # -> False
 
-    #session.close()
+    # Set room / room type rates
+    room_2.set_rate(130)
+    print(room_2.get_rate())    # -> 130
+
+    for i in range(4, 16):
+        new_room = room_factory.get('queen')
+        new_room.set_room_number(i)
+        data.append(new_room)
+
+    Base.save_all(data, session)
+    rooms = Room.get_all(session)
+    
+    for room in rooms:
+        if room.get_type() == 'queen':
+            room.set_rate(90)
+
+    print(room_1.get_rate())    # -> 90
+    room_factory.register('queen', room_1)
+
+    Base.save_all(data, session)
+    session.close()
 
 if __name__ == '__main__': main()
