@@ -63,42 +63,47 @@ class Guest(Person):
 
     def __init__(self, account, *args, **kwargs):
         """Sets up a Guest instance with a stay parameter"""
-        self._stay = None
+        self._stays = []
         self._account = account
         super().__init__(*args, **kwargs)
 
-    _stay_id: Mapped[int] = mapped_column(ForeignKey('stay._id'), nullable=True)
     _account_id: Mapped[int] = mapped_column(ForeignKey('account._id'), nullable=True)
-    _stay: Mapped[Stay] = relationship()
+    _stays: Mapped[list[Stay]] = relationship(cascade='all, delete')
     _account: Mapped[Account] = relationship(cascade='all, delete')
 
     __mapper_args__ = {
         "polymorphic_identity": "guest",
     }
 
-    def get_stay(self):
-        return self._stay
+    def get_stays(self):
+        return self._stays
     
     def get_account(self):
         return self._account
     
+    def get_stay(self, room_number):
+        for stay in self.get_stays():
+            if stay.get_room().get_room_number() == room_number:
+                return stay
+    
     def book_stay(self, stay):
-        self._stay = stay
+        self._stays.append(stay)
         account = self.get_account()
         account.charge(stay.get_total_charge())
 
-    def cancel_stay(self):
-        stay = self.get_stay()
+    def cancel_stay(self, room_number):
+        stay = self.get_stay(room_number)
         if stay:
             account = self.get_account()
             account.credit(stay.get_total_charge())
             account.apply_credits()
             
             stay.reset_room()
-            self._stay = None
+            stay_idx = self._stays.index(stay)
+            self._stays.pop(stay_idx)
 
-    def alter_stay(self, start=None, end=None):
-        stay = self.get_stay()
+    def alter_stay(self, room_number, start=None, end=None):
+        stay = self.get_stay(room_number)
         if stay:
             account = self.get_account()
             account.credit(stay.get_total_charge())
@@ -109,8 +114,8 @@ class Guest(Person):
             account.charge(stay.get_total_charge())
             account.apply_credits()
 
-    def is_checked_in(self):
-        stay = self.get_stay()
+    def is_checked_in(self, room_number):
+        stay = self.get_stay(room_number)
         if stay:
             return stay.is_checked_in()
        
@@ -213,18 +218,23 @@ class Manager(Employee):
 def test_guest():
     from stay import Stay
     from room import Room
+    from utils import future_date
 
     room = Room(101, 'queen', 150)
     stay = Stay(room, datetime.now(), datetime.now())
     guest = Guest(Account(), 'Joe', 'test@email.com', datetime(2023, 5, 20))
     guest.book_stay(stay)
-    print(guest.is_checked_in(), guest.get_joined())     # False, 2023-05-20
+    print(guest.is_checked_in(101), guest.get_joined())     # False, 2023-05-20
 
-    guest.get_stay().check_in()
-    print(guest.is_checked_in())        # True
+    guest.get_stay(101).check_in()
+    print(guest.is_checked_in(101))        # True
 
-    guest.get_stay().check_out()
-    print(guest.is_checked_in())        # False
+    guest.get_stay(101).check_out()
+    print(guest.is_checked_in(101))        # False
+
+    stay_2 = Stay(room, future_date(5), future_date(10))
+    guest.book_stay(stay_2)
+    print(guest.get_stays())     # 2 stays
 
 def test_employee():
     emp = Employee(Schedule(), 20, 'Jeff', 'test2@email.com')

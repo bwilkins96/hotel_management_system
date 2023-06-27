@@ -54,7 +54,7 @@ def main():
     # Book stay
     stay_a = Stay(room_1, datetime.now(), future_date(5))
     guest_a.book_stay(stay_a)
-    print(f'\n{guest_a.get_stay()}\n')  
+    print(f'\n{guest_a.get_stay(1)}\n')  
 
     # Check pay and pay bill
     print(ga_account.get_total_due())            # -> 500         
@@ -63,29 +63,29 @@ def main():
 
     # Check-in, check-out, get/replace room key
     stay_a.check_in()
-    print(guest_a.is_checked_in())         # -> True
-    stay_a.get_keycard(printer)            # Should print mock message
-    stay_a.get_keycard(printer)            # Should print mock message
+    print(guest_a.is_checked_in(1))         # -> True
+    stay_a.get_keycard(printer)             # Should print mock message
+    stay_a.get_keycard(printer)             # Should print mock message
 
-    stay_a.get_keycard(printer)            # Should NOT print mock message
-    stay_a.replace_keycard(printer)        # Should print mock message
+    stay_a.get_keycard(printer)             # Should NOT print mock message
+    stay_a.replace_keycard(printer)         # Should print mock message
     stay_a.check_out()
-    print(f'{guest_a.is_checked_in()}\n')  # -> False
+    print(f'{guest_a.is_checked_in(1)}\n')  # -> False
 
     # Cancel stay
     stay_b = Stay(room_2, future_date(2), future_date(7))
     guest_b.book_stay(stay_b)
 
     print(gb_account)            # -> Balance due of $625
-    guest_b.cancel_stay()
-    print(guest_b.get_stay())    # -> None
+    guest_b.cancel_stay(2)
+    print(guest_b.get_stay(2))   # -> None
     print(f'{gb_account}\n')     # -> Zero balance and credits
 
     # Alter stay
     stay_c = Stay(room_3, future_date(10), future_date(14))
     guest_b.book_stay(stay_c)   
     print(stay_c)                         
-    guest_b.alter_stay(end=future_date(12))
+    guest_b.alter_stay(3, end=future_date(12))
     print(stay_c)
     print(f'{gb_account}\n')      # -> Balance due of $300
 

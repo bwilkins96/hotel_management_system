@@ -28,6 +28,7 @@ class Stay(Base):
     _checked_in: Mapped[bool]
     _remaining_keycards: Mapped[int]
     _replacement_keycards: Mapped[int]
+    _guest_id: Mapped[int] = mapped_column(ForeignKey('person._id'), nullable=True)
 
     def get_room(self):
         return self._room
