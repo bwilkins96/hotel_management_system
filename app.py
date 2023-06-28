@@ -11,7 +11,7 @@ from schedule import Shift, Schedule
 from account import Account
 from printer import Printer
 
-from utils import get_session, future_date
+from utils import get_session, future_datetime
 
 def main():
     session = get_session()
@@ -46,13 +46,13 @@ def main():
     # ---------------------- #
 
     # Check availability / room rate
-    available_rooms = Room.get_all_available(session, datetime.now(), future_date(5))
-    print(room_1.available_on(future_date(2)))    # -> True
-    print(available_rooms)                        # -> List of all rooms
-    print(room_1.get_rate())                      # -> 100
+    available_rooms = Room.get_all_available(session, datetime.now(), future_datetime(5))
+    print(room_1.available_on(future_datetime(2)))    # -> True
+    print(available_rooms)                            # -> List of all rooms
+    print(room_1.get_rate())                          # -> 100
 
     # Book stay
-    stay_a = Stay(room_1, datetime.now(), future_date(5))
+    stay_a = Stay(room_1, datetime.now(), future_datetime(5))
     guest_a.book_stay(stay_a)
     print(f'\n{guest_a.get_stay(1, date.today())}\n')  
 
@@ -63,7 +63,7 @@ def main():
 
     # Check-in, check-out, get/replace room key
     stay_a.check_in()
-    print(guest_a.is_checked_in(1))               # -> True
+    print(guest_a.is_checked_in(stay_a))               # -> True
     stay_a.get_keycard(printer)                   # Should print mock message
     stay_a.get_keycard(printer)                   # Should print mock message
 
@@ -73,20 +73,20 @@ def main():
     print(f'{guest_a.is_checked_in(stay_a)}\n')   # -> False
 
     # Cancel stay
-    stay_b = Stay(room_2, future_date(2), future_date(7))
+    stay_b = Stay(room_2, future_datetime(2), future_datetime(7))
     guest_b.book_stay(stay_b)
 
-    print(gb_account)                       # -> Balance due of $625
+    print(gb_account)                        # -> Balance due of $625
     guest_b.cancel_stay(stay_b)
-    start_date = future_date(2).date()
-    print(guest_b.get_stay(2, date))        # -> None
-    print(f'{gb_account}\n')                # -> Zero balance and credits
+    start_date = future_datetime(2).date()
+    print(guest_b.get_stay(2, start_date))   # -> None
+    print(f'{gb_account}\n')                 # -> Zero balance and credits
 
     # Alter stay
-    stay_c = Stay(room_3, future_date(10), future_date(14))
+    stay_c = Stay(room_3, future_datetime(10), future_datetime(14))
     guest_b.book_stay(stay_c)   
     print(stay_c)                         
-    guest_b.alter_stay(stay_c, end=future_date(12))
+    guest_b.alter_stay(stay_c, end=future_datetime(12))
     print(stay_c)
     print(f'{gb_account}\n')      # -> Balance due of $300
 
@@ -96,7 +96,7 @@ def main():
 
     # Set / check work schedule
     ea_schedule = emp_a.get_schedule()
-    shift_a = Shift(datetime.now(), future_date(hours=8))
+    shift_a = Shift(datetime.now(), future_datetime(hours=8))
     ea_schedule.add_shift(shift_a)
     print(f'{ea_schedule.get_shifts()}\n')
 

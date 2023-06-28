@@ -217,7 +217,7 @@ def test_guest():
     from datetime import date
     from stay import Stay
     from room import Room
-    from utils import future_date
+    from utils import future_datetime
 
     room = Room(101, 'queen', 150)
     stay = Stay(room, datetime.now(), datetime.now())
@@ -231,7 +231,7 @@ def test_guest():
     guest.get_stay(101, date.today()).check_out()
     print(guest.is_checked_in(stay))        # False
 
-    stay_2 = Stay(room, future_date(5), future_date(10))
+    stay_2 = Stay(room, future_datetime(5), future_datetime(10))
     guest.book_stay(stay_2)
     print(guest.get_stays())     # 2 stays
 
