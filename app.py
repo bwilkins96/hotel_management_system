@@ -63,7 +63,7 @@ def main():
 
     # Check-in, check-out, get/replace room key
     stay_a.check_in()
-    print(guest_a.is_checked_in(stay_a))               # -> True
+    print(guest_a.is_checked_in(stay_a))          # -> True
     stay_a.get_keycard(printer)                   # Should print mock message
     stay_a.get_keycard(printer)                   # Should print mock message
 

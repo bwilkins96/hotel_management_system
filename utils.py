@@ -16,6 +16,10 @@ def future_datetime(days=0, hours=0):
     return datetime.now() + timedelta(days=days, hours=hours)
 
 def calculate_hours(time1, time2):
-    diff = time2 - time1
+    if time2 > time1:
+        diff = time2 - time1
+    else:
+        diff = time1 - time2
+
     hours = diff.seconds / 60 / 60
     return hours
