@@ -63,12 +63,12 @@ class Guest(Person):
 
     def __init__(self, account, *args, **kwargs):
         """Sets up a Guest instance with a stay parameter"""
-        self._stays = []
+        self._stays = set()
         self._account = account
         super().__init__(*args, **kwargs)
 
     _account_id: Mapped[int] = mapped_column(ForeignKey('account._id'), nullable=True)
-    _stays: Mapped[list[Stay]] = relationship(cascade='all, delete')
+    _stays: Mapped[set[Stay]] = relationship(cascade='all, delete')
     _account: Mapped[Account] = relationship(cascade='all, delete')
 
     __mapper_args__ = {
@@ -88,7 +88,7 @@ class Guest(Person):
                     return stay
     
     def book_stay(self, stay):
-        self._stays.append(stay)
+        self._stays.add(stay)
         account = self.get_account()
         account.charge(stay.get_total_charge())
 
@@ -99,8 +99,7 @@ class Guest(Person):
             account.apply_credits()
             
             stay.reset_room()
-            stay_idx = self._stays.index(stay)
-            self._stays.pop(stay_idx)
+            self._stays.remove(stay)
 
     def alter_stay(self, stay, start=None, end=None):
         if stay in self.get_stays():
