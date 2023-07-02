@@ -16,6 +16,7 @@ from utils import get_session, future_datetime
 def main():
     session = get_session()
 
+    # Set up objects
     room_1 = Room(1, 'queen', 100)
     room_2 = Room(2, 'king', 125)
     room_3 = Room(3, '2 queens', 150)
@@ -99,14 +100,15 @@ def main():
     shift_a = Shift(datetime.now(), future_datetime(hours=8))
     ea_schedule.add_shift(shift_a)
     emp_a.add_schedule(ea_schedule)
+    
+    print(ea_schedule is emp_a.get_current_schedule())    # -> True
     print(f'{ea_schedule.get_shifts()}\n')
 
     # clock-in / clock-out of shift
     ea_schedule.get_current_shift().clock_in()
-    print(ea_schedule in emp_a.get_all_schedules())    # -> True
-    print(emp_a.is_clocked_in(ea_schedule))            # -> True
+    print(emp_a.is_clocked_in())                  # -> True
     ea_schedule.get_current_shift().clock_out()
-    print(f'{emp_a.is_clocked_in(ea_schedule)}\n')     # -> False
+    print(f'{emp_a.is_clocked_in()}\n')           # -> False
 
     # Set room / room type rates
     room_2.set_rate(130)

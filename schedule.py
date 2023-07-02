@@ -1,6 +1,6 @@
 # SWDV 630 - Object-Oriented Software Architecture
 
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from base import Base
@@ -87,20 +87,24 @@ class Schedule(Base):
     def __init__(self, week_start=date.today()):
         self._shifts = []
         self._week_start = week_start
+        self._week_end = week_start + timedelta(days=7)
 
     __tablename__ = 'schedule'
 
     _id: Mapped[int] = mapped_column(primary_key=True)
     _shifts: Mapped[list[Shift]] = relationship()
     _week_start: Mapped[date]
+    _week_end: Mapped[date]
     _employee_id: Mapped[int] = mapped_column(ForeignKey('person._id'), nullable=True)
-
 
     def get_shifts(self):
         return self._shifts[:]
     
     def get_week_start(self):
         return self._week_start
+    
+    def get_week_end(self):
+        return self._week_end
     
     def get_current_shift(self):
         for shift in self._shifts:
@@ -140,4 +144,4 @@ class Schedule(Base):
         self._shifts = []
 
     def __repr__(self):
-        return f'<Schedule: {len(self._shifts)} Shifts>'
+        return f'<Schedule ({self.get_week_start()} to {self.get_week_end()}): {len(self._shifts)} Shifts>'

@@ -1,7 +1,7 @@
 # SWDV 630 - Object-Oriented Software Architecture
 # Person superclass and 3 subclasses for a hotel management system
 
-from datetime import datetime
+from datetime import datetime, date
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from base import Base
@@ -165,8 +165,9 @@ class Employee(Person):
         total = (self._unpaid_hours * rate) + (self._unpaid_overtime * rate * 1.5)
         return total
     
-    def is_clocked_in(self, schedule):
-        if schedule in self.get_all_schedules():
+    def is_clocked_in(self):
+        schedule = self.get_current_schedule()
+        if schedule:
             return schedule.is_clocked_in()
         
         return False
@@ -188,6 +189,14 @@ class Employee(Person):
     def remove_schedule(self, schedule):
         if schedule in self.get_all_schedules():
             self._schedules.pop(schedule)
+
+    def get_current_schedule(self):
+        schedules = self.get_all_schedules()
+        today = date.today()
+
+        for sched in schedules:
+            if sched.get_week_start() <= today <= sched.get_week_end():
+                return sched
     
 class Manager(Employee):
     """Manager subclass for a hotel management system"""
