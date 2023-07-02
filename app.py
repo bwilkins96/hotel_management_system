@@ -20,9 +20,9 @@ def main():
     room_2 = Room(2, 'king', 125)
     room_3 = Room(3, '2 queens', 150)
 
-    manager = PersonFactory.create('manager', Schedule(), 30, 'Jenny', 'manager@email.com')
-    emp_a = PersonFactory.create('employee', Schedule(), 20, 'Julian', 'emp_a@email.com')
-    emp_b = PersonFactory.create('employee', Schedule(), 20, 'Jennifer', 'emp_b@email.com')
+    manager = PersonFactory.create('manager', 30, 'Jenny', 'manager@email.com')
+    emp_a = PersonFactory.create('employee', 20, 'Julian', 'emp_a@email.com')
+    emp_b = PersonFactory.create('employee', 20, 'Jennifer', 'emp_b@email.com')
     manager.add_employee(emp_a)
     manager.add_employee(emp_b)
 
@@ -95,16 +95,18 @@ def main():
     print(f'{emp_a.get_total_pay()}\n')  # -> 950
 
     # Set / check work schedule
-    ea_schedule = emp_a.get_schedule()
+    ea_schedule = Schedule()
     shift_a = Shift(datetime.now(), future_datetime(hours=8))
     ea_schedule.add_shift(shift_a)
+    emp_a.add_schedule(ea_schedule)
     print(f'{ea_schedule.get_shifts()}\n')
 
     # clock-in / clock-out of shift
     ea_schedule.get_current_shift().clock_in()
-    print(emp_a.is_clocked_in())                   # -> True
+    print(ea_schedule in emp_a.get_all_schedules())    # -> True
+    print(emp_a.is_clocked_in(ea_schedule))            # -> True
     ea_schedule.get_current_shift().clock_out()
-    print(f'{emp_a.is_clocked_in()}\n')            # -> False
+    print(f'{emp_a.is_clocked_in(ea_schedule)}\n')     # -> False
 
     # Set room / room type rates
     room_2.set_rate(130)

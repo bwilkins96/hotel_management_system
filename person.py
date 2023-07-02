@@ -119,11 +119,11 @@ class Guest(Person):
 class Employee(Person):
     """Employee subclass for a hotel management system"""
 
-    def __init__(self, schedule, pay_rate,  *args, **kwargs):
+    def __init__(self, pay_rate, *args, **kwargs):
         self._pay_rate = float(pay_rate)
         self._unpaid_hours = 0.0
         self._unpaid_overtime = 0.0
-        self._schedule = schedule
+        self._schedules = set()
 
         super().__init__(*args, **kwargs)
 
@@ -131,15 +131,14 @@ class Employee(Person):
     _unpaid_hours: Mapped[float] = mapped_column(nullable=True)
     _unpaid_overtime: Mapped[float] = mapped_column(nullable=True)
     _manager_id: Mapped[int] = mapped_column(ForeignKey('person._id'), nullable=True)
-    _schedule_id: Mapped[int] = mapped_column(ForeignKey('schedule._id'), nullable=True)
-    _schedule: Mapped[Schedule] = relationship()
+    _schedules: Mapped[set[Schedule]] = relationship(cascade='all, delete')
 
     __mapper_args__ = {
         "polymorphic_identity": "employee",
     }
 
-    def get_schedule(self):
-        return self._schedule
+    def get_all_schedules(self):
+        return self._schedules
 
     def get_pay_rate(self):
         return self._pay_rate
@@ -166,20 +165,29 @@ class Employee(Person):
         total = (self._unpaid_hours * rate) + (self._unpaid_overtime * rate * 1.5)
         return total
     
-    def is_clocked_in(self):
-        return self.get_schedule().is_clocked_in()
+    def is_clocked_in(self, schedule):
+        if schedule in self.get_all_schedules():
+            return schedule.is_clocked_in()
+        
+        return False
     
-    def apply_schedule_hours(self):
-        schedule = self.get_schedule()
-        hours = schedule.hours_worked()
-        overtime = 0
+    def apply_schedule_hours(self, schedule):
+        if schedule in self.get_all_schedules():
+            hours = schedule.hours_worked()
+            overtime = 0
 
-        if hours > 40:
-            overtime = hours - 40
-            hours = 40.0
+            if hours > 40:
+                overtime = hours - 40
+                hours = 40.0
 
-        self.add_hours(hours, overtime)
-        schedule.reset()
+            self.add_hours(hours, overtime)
+
+    def add_schedule(self, schedule):
+        self._schedules.add(schedule)
+
+    def remove_schedule(self, schedule):
+        if schedule in self.get_all_schedules():
+            self._schedules.pop(schedule)
     
 class Manager(Employee):
     """Manager subclass for a hotel management system"""
@@ -231,7 +239,7 @@ def test_guest():
     print(guest.get_stays())     # 2 stays
 
 def test_employee():
-    emp = Employee(Schedule(), 20, 'Jeff', 'test2@email.com')
+    emp = Employee(20, 'Jeff', 'test2@email.com')
     emp.add_hours(40)
     print(emp.get_total_pay())          # 800.0
 
@@ -242,11 +250,11 @@ def test_employee():
     print(emp.get_total_pay())          # 0.0
 
 def test_manager():
-    man = Manager(Schedule(), 30, 'Jenny', 'test3@email.com')
+    man = Manager(30, 'Jenny', 'test3@email.com')
     print(man.get_employees())          # []
 
-    emp_a = Employee(Schedule(), 20, 'Julian', 'test4@email.com')
-    emp_b = Employee(Schedule(), 20, 'Jennifer', 'test5@email.com')
+    emp_a = Employee(20, 'Julian', 'test4@email.com')
+    emp_b = Employee(20, 'Jennifer', 'test5@email.com')
     man.add_employee(emp_a)
     man.add_employee(emp_b)
     print(man.get_employees())          # [(Person: Julian), (Person: Jennifer)]

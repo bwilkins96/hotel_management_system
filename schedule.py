@@ -82,26 +82,25 @@ class Shift(Base):
         return f'<Shift: {shift_date} ({start_time} to {end_time})>'
     
 class Schedule(Base):
-    """Schedule class for hotel management system"""
-    _week_days = ('m', 't', 'w', 'th', 'f', 's', 'su')
+    """Weekly schedule class for hotel management system"""
     
-    def __init__(self, week_start='m'):
+    def __init__(self, week_start=date.today()):
         self._shifts = []
-        
-        week_start = week_start.strip().lower()
-        if week_start in self._week_days:
-            self._week_start = week_start
-        else:
-            self._week_start = 'm'
+        self._week_start = week_start
 
     __tablename__ = 'schedule'
 
     _id: Mapped[int] = mapped_column(primary_key=True)
     _shifts: Mapped[list[Shift]] = relationship()
-    _week_start: Mapped[str]
+    _week_start: Mapped[date]
+    _employee_id: Mapped[int] = mapped_column(ForeignKey('person._id'), nullable=True)
+
 
     def get_shifts(self):
         return self._shifts[:]
+    
+    def get_week_start(self):
+        return self._week_start
     
     def get_current_shift(self):
         for shift in self._shifts:
