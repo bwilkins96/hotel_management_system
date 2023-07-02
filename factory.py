@@ -26,8 +26,8 @@ def test():
     from schedule import Schedule
 
     guest = PersonFactory.create('guest', Account(), 'Brandon', 'test@email.com')
-    employee = PersonFactory.create('employee', Schedule(), 20, 'Hannah', 'test2@email.com') 
-    manager = PersonFactory.create('manager', Schedule(), 25, 'Bridgett', 'test3@email.com')
+    employee = PersonFactory.create('employee', 20, 'Hannah', 'test2@email.com') 
+    manager = PersonFactory.create('manager', 25, 'Bridgett', 'test3@email.com')
 
     for person in [guest, employee, manager]:
         print(type(person))
