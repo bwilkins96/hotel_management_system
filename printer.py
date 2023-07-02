@@ -2,6 +2,8 @@
 # Mock printer class
 
 class Printer():
+    """Mock printer class to simulate printer class for hotel management system"""
+    
     def __init__(self, cards, status='ok'):
         self._remaining_cards = int(cards)
         self._status = status

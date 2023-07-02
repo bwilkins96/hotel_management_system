@@ -5,6 +5,8 @@ from sqlalchemy.orm import Mapped, mapped_column
 from base import Base
 
 class Account(Base):
+    """Account class for hotel management system"""
+    
     def __init__(self, charge=0.0, credits=0.0):
         self._total_due = float(charge)
         self._credits = float(credits)

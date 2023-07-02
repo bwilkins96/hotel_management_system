@@ -13,10 +13,6 @@ class Person(Base):
     """Person base class for a hotel management system"""
     
     def __init__(self, name, email, joined=datetime.now()):
-        """
-        Sets up a Person instance with name, start date, and end date parameters.
-        Parameters start and end should be date objects.
-        """
         self._name = name.title() 
         self._email = email
         self._joined = joined
@@ -62,7 +58,6 @@ class Guest(Person):
     """Guest subclass for a hotel management system"""
 
     def __init__(self, account, *args, **kwargs):
-        """Sets up a Guest instance with a stay parameter"""
         self._stays = set()
         self._account = account
         super().__init__(*args, **kwargs)
@@ -88,11 +83,13 @@ class Guest(Person):
                     return stay
     
     def book_stay(self, stay):
+        """Adds stay to guest stays and handle account update"""
         self._stays.add(stay)
         account = self.get_account()
         account.charge(stay.get_total_charge())
 
     def cancel_stay(self, stay):
+        """Removes stay from guest stays and handles account update"""
         if stay in self.get_stays():
             account = self.get_account()
             account.credit(stay.get_total_charge())
@@ -102,6 +99,7 @@ class Guest(Person):
             self._stays.remove(stay)
 
     def alter_stay(self, stay, start=None, end=None):
+        """Alters start and/or end datetime of stay and updates account"""
         if stay in self.get_stays():
             account = self.get_account()
             account.credit(stay.get_total_charge())
@@ -122,7 +120,6 @@ class Employee(Person):
     """Employee subclass for a hotel management system"""
 
     def __init__(self, schedule, pay_rate,  *args, **kwargs):
-        """Sets up an Employee instance with a pay_rate parameter"""
         self._pay_rate = float(pay_rate)
         self._unpaid_hours = 0.0
         self._unpaid_overtime = 0.0
@@ -188,7 +185,6 @@ class Manager(Employee):
     """Manager subclass for a hotel management system"""
 
     def __init__(self, *args, **kwargs):
-        """Sets up a Manager instance with an office parameter"""
         self._employees = []
         super().__init__(*args, **kwargs)
 

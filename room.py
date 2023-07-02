@@ -8,6 +8,8 @@ from base import Base
 from prototype import Prototype, PrototypeFactory
 
 class Room(Base, Prototype):
+    """Room class for hotel management system"""
+    
     def __init__(self, room_num, type, rate):
         self._room_number = int(room_num)
         self._type = type

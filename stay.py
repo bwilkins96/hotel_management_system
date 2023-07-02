@@ -8,6 +8,8 @@ from base import Base
 from room import Room
 
 class Stay(Base):
+    """Stay class for hotel management system"""
+
     def __init__(self, room, start, end, keycards=2): 
         self._room = None
         self._checked_in = False

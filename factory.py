@@ -10,7 +10,7 @@ class PersonFactory:
     def create(type, *args, **kwargs):
         """
         Returns a Person subclass instance based on the type parameter
-        i.e. PersonFactory.create('guest', room, name, start, end) 
+        i.e. PersonFactory.create('guest', account, name, email) 
         """
         type = type.strip().lower()
 
@@ -22,9 +22,12 @@ class PersonFactory:
             return Manager(*args, **kwargs)
 
 def test():
-    guest = PersonFactory.create('guest', 101, 'Brandon')
-    employee = PersonFactory.create('employee', 20, 'Hannah') 
-    manager = PersonFactory.create('manager', 110, 25, 'Bridgett')
+    from account import Account
+    from schedule import Schedule
+
+    guest = PersonFactory.create('guest', Account(), 'Brandon', 'test@email.com')
+    employee = PersonFactory.create('employee', Schedule(), 20, 'Hannah', 'test2@email.com') 
+    manager = PersonFactory.create('manager', Schedule(), 25, 'Bridgett', 'test3@email.com')
 
     for person in [guest, employee, manager]:
         print(type(person))

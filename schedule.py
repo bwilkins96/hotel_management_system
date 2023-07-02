@@ -7,6 +7,8 @@ from base import Base
 from utils import calculate_hours
 
 class Shift(Base):
+    """Shift class for hotel management system"""
+
     def __init__(self, start, end):
         self._start = start
         self._end = end
@@ -80,6 +82,7 @@ class Shift(Base):
         return f'<Shift: {shift_date} ({start_time} to {end_time})>'
     
 class Schedule(Base):
+    """Schedule class for hotel management system"""
     _week_days = ('m', 't', 'w', 'th', 'f', 's', 'su')
     
     def __init__(self, week_start='m'):
